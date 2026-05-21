@@ -1,72 +1,36 @@
-import React, { useState } from 'react';
-
+import React, { useState } from "react";
 import "./Login.css";
-import Header from '../Header/Header';
 
-const Login = ({ onClose }) => {
-
+const Login = ({ onClose, onLogin }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [open,setOpen] = useState(true)
+  const [err, setErr] = useState("");
 
-  let login_url = window.location.origin+"/djangoapp/login";
-
-  const login = async (e) => {
-    e.preventDefault();
-
-    const res = await fetch(login_url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            "userName": userName,
-            "password": password
-        }),
+  const login = async () => {
+    const res = await fetch("/djangoapp/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userName, password }),
     });
-    
-    const json = await res.json();
-    if (json.status != null && json.status === "Authenticated") {
-        sessionStorage.setItem('username', json.userName);
-        setOpen(false);        
+    const data = await res.json();
+    if (data.status === "Authenticated") {
+      onLogin(data.userName);
+      onClose();
+    } else {
+      setErr("Invalid credentials. Please try again.");
     }
-    else {
-      alert("The user could not be authenticated.")
-    }
-};
-
-  if (!open) {
-    window.location.href = "/";
   };
-  
 
   return (
-    <div>
-      <Header/>
-    <div onClick={onClose}>
-      <div
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-        className='modalContainer'
-      >
-          <form className="login_panel" style={{}} onSubmit={login}>
-              <div>
-              <span className="input_field">Username </span>
-              <input type="text"  name="username" placeholder="Username" className="input_field" onChange={(e) => setUserName(e.target.value)}/>
-              </div>
-              <div>
-              <span className="input_field">Password </span>
-              <input name="psw" type="password"  placeholder="Password" className="input_field" onChange={(e) => setPassword(e.target.value)}/>            
-              </div>
-              <div>
-              <input className="action_button" type="submit" value="Login"/>
-              <input className="action_button" type="button" value="Cancel" onClick={()=>setOpen(false)}/>
-              </div>
-              <a className="loginlink" href="/register">Register Now</a>
-          </form>
+    <div className="login_modal">
+      <div className="login_container">
+        <h2>Login</h2>
+        {err && <p style={{ color: "red" }}>{err}</p>}
+        <input placeholder="Username" value={userName} onChange={e => setUserName(e.target.value)} />
+        <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+        <button onClick={login}>Login</button>
+        <button onClick={onClose}>Cancel</button>
       </div>
-    </div>
     </div>
   );
 };
