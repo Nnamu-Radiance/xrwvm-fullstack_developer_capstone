@@ -11,9 +11,13 @@ const Dealers = () => {
     const url = state === "All" ? "/djangoapp/get_dealers" : `/djangoapp/get_dealers/${state}`;
     const res = await fetch(url);
     const data = await res.json();
-    setDealersList(data.dealers || []);
+    console.log(data);
+    const dealersData = data.dealers || [];
+    setDealersList(dealersData);
+
     if (state === "All") {
-      const uniqueStates = [...new Set(data.dealers.map(d => d.state))];
+      const uniqueStates = [...new Set(dealersData.map((d) => d.state)),
+      ];
       setStates(["All", ...uniqueStates.sort()]);
     }
   };

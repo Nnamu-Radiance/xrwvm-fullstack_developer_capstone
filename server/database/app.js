@@ -117,3 +117,14 @@ app.post('/insert_review', express.raw({ type: '*/*' }), async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+app.post("/insert_review", async (req, res) => {
+  const db = client.db("dealershipsDB");
+  const collection = db.collection("reviews");
+  try {
+    const result = await collection.insertOne(req.body);
+    res.json({ status: "success", id: result.insertedId });
+  } catch (e) {
+    res.status(500).json({ status: "error", message: e.message });
+  }
+});

@@ -1,6 +1,4 @@
 from flask import Flask, jsonify
-import re
-
 app = Flask(__name__)
 
 @app.route("/analyze/<text>", methods=["GET"])

@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
@@ -82,3 +83,33 @@ def add_review(request):
         except Exception:
             return JsonResponse({"status": 401, "message": "Error in posting review"})
     return JsonResponse({"status": 403, "message": "Unauthorized"})
+
+
+import requests as req_lib
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def add_review(request):
+    if request.method == "POST":
+        import json
+        data = json.loads(request.body)
+        review_text = data.get("review", "")
+        try:
+            sentiment_url = "http://localhost:5050/analyze/" + review_text.replace(" ", "+")
+            sentiment_res = req_lib.get(sentiment_url)
+            sentiment = sentiment_res.json().get("sentiment", "neutral")
+        except Exception:
+            sentiment = "neutral"
+        data["sentiment"] = sentiment
+        try:
+            req_lib.post("http://localhost:3030/insert_review", json=data)
+            return JsonResponse({"status": 200, "sentiment": sentiment})
+        except Exception as e:
+            return JsonResponse({"status": 500, "error": str(e)})
+    return JsonResponse({"status": 405})
+
+def get_cars(request):
+    from .models import CarMake, CarModel
+    cars = CarModel.objects.select_related('car_make')
+    car_list = [{"CarModel": c.name, "CarMake": c.car_make.name, "CarYear": c.year, "CarType": c.type} for c in cars]
+    return JsonResponse({"CarModels": car_list})
