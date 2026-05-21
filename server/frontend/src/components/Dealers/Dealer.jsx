@@ -8,7 +8,7 @@ const Dealer = () => {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    fetch(`/djangoapp/dealer/${id}`).then(r => r.json()).then(d => setDealer(d.dealer));
+    fetch(`/dealer/${id}`).then(r => r.json()).then(d => setDealer(d.dealer));
     fetch(`/djangoapp/reviews/dealer/${id}`).then(r => r.json()).then(d => setReviews(d.reviews || []));
   }, [id]);
 
@@ -19,7 +19,7 @@ const Dealer = () => {
       <Header />
       <div style={{ padding: "20px" }}>
         {dealer && <h2>{dealer.full_name}</h2>}
-        <a href={`/djangoapp/dealer/${id}/review`}>Post a Review</a>
+        <a href={`/dealer/${id}/review`}>Post a Review</a>
         <h3>Reviews</h3>
         {reviews.length === 0 && <p>No reviews yet.</p>}
         {reviews.map((r, i) => (
